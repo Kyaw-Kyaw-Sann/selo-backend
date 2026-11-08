@@ -5,6 +5,7 @@ import { env } from "./config/env.js";
 async function startServer() {
   try {
     await pool.query("SELECT 1");
+    
     console.log("Database connected successfully.");
 
     const server = app.listen(env.PORT, () => {
