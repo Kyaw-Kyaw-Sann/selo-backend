@@ -1,9 +1,11 @@
 import express from 'express'
 import { errorMiddleware } from './middlewares/error.middleware.js'
 import { AppError } from './utils/app.error.js'
-import authRoutes from './modules/auth/auth.routes.js'
 import cookieParser from 'cookie-parser'
+import authRoutes from './modules/auth/auth.routes.js'
 import userRoutes from './modules/users/users.routes.js'
+import unitRoutes from './modules/units/units.routes.js'
+import categoriesRoutes from "./modules/categories/categories.routes.js";
 import { csrfProtection } from './middlewares/csrf.middleware.js'
 
 const app = express()
@@ -14,6 +16,8 @@ app.use("/api", csrfProtection);
 
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/units', unitRoutes)
+app.use("/api/categories", categoriesRoutes);
 
 app.get('/health', (_req, res)=>{
     res.status(200).json({
