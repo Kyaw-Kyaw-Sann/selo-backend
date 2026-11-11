@@ -7,6 +7,7 @@ import userRoutes from './modules/users/users.routes.js'
 import unitRoutes from './modules/units/units.routes.js'
 import categoriesRoutes from "./modules/categories/categories.routes.js";
 import productsRoutes from "./modules/products/products.routes.js";
+import suppliersRoutes from './modules/suppliers/suppliers.routes.js'
 import { csrfProtection } from './middlewares/csrf.middleware.js'
 
 const app = express()
@@ -20,6 +21,7 @@ app.use('/api/users', userRoutes)
 app.use('/api/units', unitRoutes)
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/suppliers", suppliersRoutes)
 
 app.get('/health', (_req, res)=>{
     res.status(200).json({
