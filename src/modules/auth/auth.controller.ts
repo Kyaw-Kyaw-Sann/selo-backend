@@ -5,6 +5,7 @@ import { AUTH_COOKIE_NAME, AUTH_TOKEN_TTL_SECONDS, authCookieOptions } from "./a
 
 export const login: RequestHandler = async (req, res) => {
     const input: LoginInput = req.body
+    
     const result = await authService.login(input)
 
     res.cookie(AUTH_COOKIE_NAME, result.token, {
