@@ -85,4 +85,5 @@ export const createAdjustment: RequestHandler = async (req, res) => {
     message: "Inventory adjusted successfully",
     data: adjustment,
   });
-};
+}; 
+

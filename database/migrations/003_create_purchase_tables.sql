@@ -63,3 +63,4 @@ CREATE TABLE purchase_items (
     CONSTRAINT fk_purchase_items_product_unit
         FOREIGN KEY (product_unit_id) REFERENCES product_units(id)
 ) ENGINE = InnoDB;
+

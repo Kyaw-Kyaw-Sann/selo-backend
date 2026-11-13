@@ -2,7 +2,7 @@ import z from "zod";
 
 export const listInventoryQuerySchema = z.object({
     search: z.string().trim().max(200).default(""),
-  status: z
+    status: z
     .enum(["ALL", "LOW_STOCK", "OUT_OF_STOCK", "IN_STOCK"])
     .default("ALL"),
   page: z.coerce.number().int().min(1).max(1000000).default(1),
