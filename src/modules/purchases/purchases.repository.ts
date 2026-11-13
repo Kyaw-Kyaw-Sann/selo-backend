@@ -1,6 +1,7 @@
 import type { RowDataPacket } from "mysql2";
 import type { ListPurchaseQuery } from "./purchases.schema.js";
 import pool from "../../config/db.js";
+import type { PoolConnection } from "mysql2/promise";
 
 
 interface PurchaseRow extends RowDataPacket {
@@ -34,6 +35,47 @@ interface PurchaseItemRow extends RowDataPacket {
   base_quantity: number;
   unit_cost: string;
   line_total: string;
+}
+
+interface ReceivedPurchaseRow extends RowDataPacket {
+  id: string;
+  purchase_no: string;
+  supplier_id: string | null;
+  total_amount: string;
+  notes: string | null;
+  received_by: string;
+  received_at: Date;
+}
+
+interface SupplierReceivingRow extends RowDataPacket {
+  id: string;
+  is_active: 0 | 1;
+}
+
+interface PurchaseStockRow extends RowDataPacket {
+  id: string;
+  name: string;
+  stock_quantity: number;
+  is_active: 0 | 1;
+}
+
+interface ReceivingUnitRow extends RowDataPacket {
+  id: string;
+  product_id: string;
+  conversion_factor: number;
+  can_purchase: 0 | 1;
+  is_active: 0 | 1;
+  unit_name: string;
+  shared_unit_active: 0 | 1;
+}
+
+interface PurchaseInsertData {
+  purchaseNo: string;
+  supplierId: string | null;
+  totalAmount: string;
+  notes: string | null;
+  receivedBy: string;
+  idempotencyKey: string;
 }
 
 export async function listPurchases(query: ListPurchaseQuery, offset: number){
@@ -118,24 +160,243 @@ export async function getPurchaseById(id: string): Promise<PurchaseDetailRow | n
     return rows[0] ?? null
 }
 
-export async function getPurchaseItem(purchaseId: string): Promise<PurchaseItemRow[] | null>{
-    const [rows] = await pool.execute<PurchaseItemRow[]>(
-        `SELECT
-       id,
-       product_id,
-       product_unit_id,
-       product_name_snapshot,
-       unit_name_snapshot,
-       quantity,
-       conversion_factor,
-       base_quantity,
-       unit_cost,
-       line_total
+export async function getPurchaseItems(
+  purchaseId: string,
+  connection?: PoolConnection,
+): Promise<PurchaseItemRow[]> {
+  const db = connection ?? pool;
+
+  const [rows] = await db.execute<PurchaseItemRow[]>(
+    `SELECT
+       id, product_id, product_unit_id,
+       product_name_snapshot, unit_name_snapshot,
+       quantity, conversion_factor, base_quantity,
+       unit_cost, line_total
      FROM purchase_items
      WHERE purchase_id = ?
      ORDER BY id`,
     [purchaseId],
-    )
+  );
 
-    return rows ?? null
+  return rows;
 }
+
+export async function getPurchaseByKey(
+  connection: PoolConnection,
+  key: string,
+): Promise<ReceivedPurchaseRow | null> {
+  const [rows] = await connection.execute<ReceivedPurchaseRow[]>(
+    `SELECT
+       id, purchase_no, supplier_id, total_amount,
+       notes, received_by, received_at
+     FROM purchases
+     WHERE idempotency_key = ?
+     LIMIT 1`,
+    [key],
+  );
+
+  return rows[0] ?? null;
+}
+
+export async function getSupplierForReceiving(
+  connection: PoolConnection,
+  id: string,
+): Promise<SupplierReceivingRow | null> {
+  const [rows] = await connection.execute<SupplierReceivingRow[]>(
+    `SELECT id, is_active
+     FROM suppliers
+     WHERE id = ?
+     FOR SHARE`,
+    [id],
+  );
+
+  return rows[0] ?? null;
+}
+
+interface PurchaseReferenceRow extends RowDataPacket {
+  id: string;
+  product_id: string;
+}
+
+export async function getPurchaseUnitReferences(
+  connection: PoolConnection,
+  ids: string[],
+): Promise<PurchaseReferenceRow[]> {
+  const placeholders = ids.map(() => "?").join(", ");
+
+  const [rows] = await connection.execute<PurchaseReferenceRow[]>(
+    `SELECT id, product_id
+     FROM product_units
+     WHERE id IN (${placeholders})`,
+    ids,
+  );
+
+  return rows;
+}
+
+export async function lockProductForReceiving(
+  connection: PoolConnection,
+  id: string,
+): Promise<PurchaseStockRow | null> {
+  const [rows] = await connection.execute<PurchaseStockRow[]>(
+    `SELECT id, name, stock_quantity, is_active
+     FROM products
+     WHERE id = ?
+     FOR UPDATE`,
+    [id],
+  );
+
+  return rows[0] ?? null;
+}
+
+export async function getUnitsForReceiving(
+  connection: PoolConnection,
+  ids: string[],
+): Promise<ReceivingUnitRow[]> {
+  const placeholders = ids.map(() => "?").join(", ");
+
+  const [rows] = await connection.execute<ReceivingUnitRow[]>(
+    `SELECT
+       pu.id,
+       pu.product_id,
+       pu.conversion_factor,
+       pu.can_purchase,
+       pu.is_active,
+       u.name AS unit_name,
+       u.is_active AS shared_unit_active
+     FROM product_units pu
+     JOIN units u ON u.id = pu.unit_id
+     WHERE pu.id IN (${placeholders})
+     ORDER BY pu.id
+     FOR SHARE`,
+    ids,
+  );
+
+  return rows;
+}
+
+async function lastInsertId(
+  connection: PoolConnection,
+): Promise<string> {
+  const [rows] = await connection.execute<
+    (RowDataPacket & { id: string })[]
+  >("SELECT CAST(LAST_INSERT_ID() AS CHAR) AS id");
+
+  return rows[0]!.id;
+}
+
+
+export async function insertPurchase(
+  connection: PoolConnection,
+  data: PurchaseInsertData,
+) {
+  await connection.execute(
+    `INSERT INTO purchases (
+       purchase_no, supplier_id, total_amount,
+       notes, received_by, received_at,
+       idempotency_key, created_at
+     )
+     VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP(3), ?, UTC_TIMESTAMP(3))`,
+    [
+      data.purchaseNo,
+      data.supplierId,
+      data.totalAmount,
+      data.notes,
+      data.receivedBy,
+      data.idempotencyKey,
+    ],
+  );
+
+  return lastInsertId(connection);
+}
+
+export async function insertPurchaseItem(
+  connection: PoolConnection,
+  data: {
+    purchaseId: string;
+    productId: string;
+    productUnitId: string;
+    productName: string;
+    unitName: string;
+    quantity: number;
+    conversionFactor: number;
+    baseQuantity: number;
+    unitCost: string;
+    lineTotal: string;
+  },
+): Promise<string> {
+  await connection.execute(
+    `INSERT INTO purchase_items (
+       purchase_id, product_id, product_unit_id,
+       product_name_snapshot, unit_name_snapshot,
+       quantity, conversion_factor, base_quantity,
+       unit_cost, line_total
+     )
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      data.purchaseId,
+      data.productId,
+      data.productUnitId,
+      data.productName,
+      data.unitName,
+      data.quantity,
+      data.conversionFactor,
+      data.baseQuantity,
+      data.unitCost,
+      data.lineTotal,
+    ],
+  );
+
+  return lastInsertId(connection);
+}
+
+export async function updateReceivedStock(
+  connection: PoolConnection,
+  productId: string,
+  quantityAfter: number,
+  baseUnitCost: string,
+): Promise<void> {
+  await connection.execute(
+    `UPDATE products
+     SET stock_quantity = ?,
+         latest_purchase_cost = ?,
+         updated_at = UTC_TIMESTAMP(3)
+     WHERE id = ?`,
+    [quantityAfter, baseUnitCost, productId],
+  );
+}
+
+export async function insertPurchaseMovement(
+  connection: PoolConnection,
+  data: {
+    productId: string;
+    purchaseItemId: string;
+    baseQuantity: number;
+    quantityBefore: number;
+    quantityAfter: number;
+    performedBy: string;
+  },
+): Promise<void> {
+  await connection.execute(
+    `INSERT INTO inventory_movements (
+       product_id, movement_type, quantity_change,
+       quantity_before, quantity_after,
+       reference_type, reference_id,
+       performed_by, operation_key, created_at
+     )
+     VALUES (
+       ?, 'PURCHASE', ?, ?, ?,
+       'PURCHASE_ITEM', ?, ?, ?, UTC_TIMESTAMP(3)
+     )`,
+    [
+      data.productId,
+      data.baseQuantity,
+      data.quantityBefore,
+      data.quantityAfter,
+      data.purchaseItemId,
+      data.performedBy,
+      `purchase:${data.purchaseItemId}`,
+    ],
+  );
+}
+

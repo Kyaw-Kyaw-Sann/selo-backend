@@ -43,16 +43,27 @@ export const getPurchaseById: RequestHandler = async(req, res) => {
     })
 }
 
-export const createPurchase: RequestHandler = async(req, res) => {
-    if(!req.user){
-        throw new AppError(
-            "Authentication required",
+export const createPurchase: RequestHandler = async (req, res) => {
+  if (!req.user) {
+    throw new AppError(
+      "Authentication required",
       401,
       "UNAUTHENTICATED",
-        )
-    }
+    );
+  }
 
-    const input: CreatePurchaseInput = req.body
+  const input: CreatePurchaseInput = req.body;
 
-    
-}
+  const result = await purchaseService.createPurchase(
+    input,
+    req.user.id,
+  );
+
+  res.status(result.replayed ? 200 : 201).json({
+    success: true,
+    message: result.replayed
+      ? "Purchase already received"
+      : "Purchase received successfully",
+    data: result.purchase,
+  });
+};
