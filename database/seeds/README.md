@@ -1,5 +1,22 @@
 # Local sample catalog
 
+## Sample purchases and sales
+
+`003_sample_transactions.sql` contains five purchases, five walk-in sales, ten items
+for each domain, five payments (three CASH and two QR), and twenty stock movements.
+Receipt numbers start with `WB-DEMO-PUR-` and `WB-DEMO-SAL-`.
+
+This sample was already imported into the local `selo` database. Refresh/query the
+tables in MySQL Workbench; do not import it again into the same database.
+The SQL is retained for inspection or a fresh local database after catalog seeding.
+Run the complete script once with Workbench's stop-on-error option enabled. If any
+statement fails, execute `ROLLBACK;` without executing the final `COMMIT;`.
+
+Existing transactions are preserved. Product stock and latest purchase costs are
+updated alongside the new ledger rows. Rice finishes at four bags (low stock), and
+sugar finishes at zero (out of stock), assuming the original catalog balances.
+
+
 Project root မှာ run ပါ။ `.env` က local development database ကို ညွှန်းထားရပါမယ်။
 
 ```powershell
