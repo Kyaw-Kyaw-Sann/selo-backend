@@ -14,7 +14,7 @@ export const listUnits: RequestHandler = async (req, res) => {
 
   if (!result.success) {
     throw new AppError(
-      result.error.issues[0].message ?? "Invalid Query",
+      result.error.issues[0].message ?? "Invalid query",
       400,
       "VALIDATION_ERROR",
     );
@@ -24,6 +24,7 @@ export const listUnits: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Units retrieved successfully",
     data: data.units,
     pagination: data.pagination,
   });
@@ -35,7 +36,7 @@ export const createUnit: RequestHandler = async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: "Unit is created successfully.",
+    message: "Unit created successfully",
     data: unit,
   });
 };
@@ -52,7 +53,7 @@ export const updateUnit: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Unit is updated successfully.",
+    message: "Unit updated successfully",
     data: unit,
   });
 };
@@ -72,7 +73,7 @@ export const updateUnitStatus: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Unit status is updated successfully.",
+    message: "Unit status updated successfully",
     data: unit,
   });
 };

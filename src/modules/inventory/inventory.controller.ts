@@ -18,6 +18,7 @@ export const listInventory: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Inventory retrieved successfully",
     data: data.inventory,
     pagination: data.pagination,
   });
@@ -38,6 +39,7 @@ export const listMovements: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Inventory movements retrieved successfully",
     data: data.movements,
     pagination: data.pagination,
   });
@@ -60,6 +62,7 @@ export const getMovementById: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Inventory movement retrieved successfully",
     data: movement,
   });
 };

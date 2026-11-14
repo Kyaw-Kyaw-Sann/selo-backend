@@ -13,7 +13,11 @@ export const createCategorySchema = z
     parentId: z
       .string()
       .regex(/^[1-9]\d*$/, "Invalid parent category ID")
-      .max(19)
+      .max(19, "Invalid parent category ID")
+      .refine(
+        (value) => value.length < 19 || value <= "9223372036854775807",
+        "Invalid parent category ID",
+      )
       .nullable()
       .default(null),
   })
@@ -27,7 +31,11 @@ export const categoryIdParamsSchema = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/, "Invalid category ID")
-    .max(19, "Invalid category ID"),
+    .max(19, "Invalid category ID")
+    .refine(
+      (value) => value.length < 19 || value <= "9223372036854775807",
+      "Invalid category ID",
+    ),
 });
 
 export const updateCategorySchema = z
@@ -36,7 +44,11 @@ export const updateCategorySchema = z
     parentId: z
       .string()
       .regex(/^[1-9]\d*$/, "Invalid parent category ID")
-      .max(19)
+      .max(19, "Invalid parent category ID")
+      .refine(
+        (value) => value.length < 19 || value <= "9223372036854775807",
+        "Invalid parent category ID",
+      )
       .nullable()
       .optional(),
   })

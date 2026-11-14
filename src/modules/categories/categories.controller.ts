@@ -18,6 +18,7 @@ export const listCategories: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Categories retrieved successfully",
     data: data.categories,
     pagination: data.pagination,
   });

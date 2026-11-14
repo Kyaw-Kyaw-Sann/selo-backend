@@ -19,7 +19,7 @@ export const listSales: RequestHandler = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: "Sales retrieved successfully.",
+        message: "Sales retrieved successfully",
         data: data.sales,
         pagination: data.pagination
     })
@@ -48,7 +48,7 @@ export const getSaleById: RequestHandler = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: "Sale is retrieved successfully.",
+        message: "Sale retrieved successfully",
         data: sale
     })
 

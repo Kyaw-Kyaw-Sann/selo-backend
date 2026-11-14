@@ -27,6 +27,7 @@ export const listSuppliers: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Suppliers retrieved successfully",
     data: supplier.suppliers,
     pagination: supplier.pagination,
   });
@@ -43,7 +44,7 @@ export const getSupplierById: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Supplier is retieved successfully.",
+    message: "Supplier retrieved successfully",
     data: supplier,
   });
 };
@@ -55,7 +56,7 @@ export const createSupplier: RequestHandler = async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: "Supplier is created successfully.",
+    message: "Supplier created successfully",
     data: supplier,
   });
 };
@@ -73,7 +74,7 @@ export const updateSupplier: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Supplier is updated successfully.",
+    message: "Supplier updated successfully",
     data: supplier,
   });
 };
@@ -94,7 +95,7 @@ export const updateSupplierStatus: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Supplier status is updated successfully.",
+    message: "Supplier status updated successfully",
     data: supplier,
   });
 };

@@ -22,7 +22,7 @@ export async function listSales(query: ListSalesQuery) {
       page: query.page,
       limit: query.limit,
       total: results.total,
-      totalPage: Math.ceil(results.total / query.limit),
+      totalPages: Math.ceil(results.total / query.limit),
     },
   };
 }

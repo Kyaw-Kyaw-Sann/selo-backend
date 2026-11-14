@@ -4,7 +4,11 @@ export const userIdParamsSchema = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/, "Invalid user ID")
-    .max(19, "Invalid user ID"),
+    .max(19, "Invalid user ID")
+    .refine(
+      (value) => value.length < 19 || value <= "9223372036854775807",
+      "Invalid user ID",
+    ),
 });
 
 export const listUsersQuerySchema = z.object({

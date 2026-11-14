@@ -12,7 +12,7 @@ export const requireOwner: RequestHandler = (req, _res, next) => {
 
   if (req.user.role !== "OWNER") {
     throw new AppError(
-      "Owner access required",
+      "Permission denied",
       403,
       "FORBIDDEN",
     );

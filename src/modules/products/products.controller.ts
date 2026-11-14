@@ -18,6 +18,7 @@ export const listProducts: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Products retrieved successfully",
     data: data.products,
     pagination: data.pagination,
   });
@@ -39,7 +40,7 @@ export const getProductById: RequestHandler = async (req, res) => {
     req.user.role,
   );
 
-  res.status(200).json({ success: true, data: product });
+  res.status(200).json({ success: true, message: "Product retrieved successfully", data: product });
 };
 
 export const createProduct: RequestHandler = async (req, res) => {

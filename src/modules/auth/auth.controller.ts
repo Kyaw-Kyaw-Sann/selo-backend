@@ -23,6 +23,7 @@ export const login: RequestHandler = async (req, res) => {
 export const me: RequestHandler = async (req, res) => {
     res.status(200).json({
         success: true,
+        message: "Current user retrieved successfully",
         data: req.user
     })
 }
@@ -33,5 +34,6 @@ export const logout: RequestHandler = (_req, res) => {
   res.status(200).json({
     success: true,
     message: "Logout successful",
+    data: null,
   });
 };

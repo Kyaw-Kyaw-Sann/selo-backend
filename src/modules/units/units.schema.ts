@@ -21,7 +21,11 @@ export const unitIdParamsSchema = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/, "Invalid unit ID")
-    .max(19, "Invalid unit ID"),
+    .max(19, "Invalid unit ID")
+    .refine(
+      (value) => value.length < 19 || value <= "9223372036854775807",
+      "Invalid unit ID",
+    ),
 });
 
 export const updateUnitSchema = createUnitSchema

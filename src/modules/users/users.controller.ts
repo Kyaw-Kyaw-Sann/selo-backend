@@ -14,6 +14,7 @@ export const getUserById: RequestHandler = async (req, res) => {
 
     res.status(200).json({
         success: true,
+        message: "User retrieved successfully",
         data: user,
     })
 }
@@ -33,6 +34,7 @@ export const listUsers: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
+    message: "Users retrieved successfully",
     data: data.users,
     pagination: data.pagination,
   });
@@ -44,7 +46,7 @@ export const createUser: RequestHandler = async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: "Staff account created successfully",
+    message: "User created successfully",
     data: user,
   });
 };
@@ -74,7 +76,7 @@ export const updateUser: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Staff account updated successfully",
+    message: "User updated successfully",
     data: user,
   });
 };
@@ -104,7 +106,7 @@ export const updateUserStatus: RequestHandler = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Staff status updated successfully",
+    message: "User status updated successfully",
     data: user,
   });
 };

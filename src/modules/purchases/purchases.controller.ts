@@ -18,6 +18,7 @@ export const listPurchases: RequestHandler = async(req, res) => {
 
     res.status(200).json({
         success: true,
+        message: "Purchases retrieved successfully",
         data: supplier.purchases,
         pagination: supplier.pagination
     })
@@ -38,7 +39,7 @@ export const getPurchaseById: RequestHandler = async(req, res) => {
 
     res.status(200).json({
         success: true,
-        message: "Purchase detail is retrieved successfully.",
+        message: "Purchase retrieved successfully",
         data: purchase
     })
 }

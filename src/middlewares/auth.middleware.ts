@@ -28,7 +28,7 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
     typeof payload.sub !== "string" ||
     !/^[1-9]\d*$/.test(payload.sub)
   ) {
-    throw new AppError("Invalid session", 401, "UNAUTHENTICATED");
+    throw new AppError("Invalid or expired session", 401, "UNAUTHENTICATED");
   }
 
   const user = await getUserById(payload.sub);
@@ -38,7 +38,7 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
     !user.is_active ||
     (user.role !== "OWNER" && user.role !== "CASHIER")
   ) {
-    throw new AppError("Invalid session", 401, "UNAUTHENTICATED");
+    throw new AppError("Invalid or expired session", 401, "UNAUTHENTICATED");
   }
 
   req.user = {

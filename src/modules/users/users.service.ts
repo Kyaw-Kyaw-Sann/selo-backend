@@ -8,7 +8,7 @@ export async function getUserById(id: string){
     const user = await userRepository.getUserById(id)
 
     if(!user){
-        throw new AppError("User Not Found", 404, "USER_NOT_FOUND")
+        throw new AppError("User not found", 404, "USER_NOT_FOUND")
     }
 
     return{
@@ -106,7 +106,7 @@ export async function updateUser(
     const actor = users.find((user) => user.id === actorId);
 
     if (!actor || !actor.is_active || actor.role !== "OWNER") {
-      throw new AppError("Owner access required", 403, "FORBIDDEN");
+      throw new AppError("Permission denied", 403, "FORBIDDEN");
     }
 
     const user = users.find((user) => user.id === id);
@@ -132,7 +132,7 @@ export async function updateUser(
       activeOwnerCount <= 1
     ) {
       throw new AppError(
-        "At least one active Owner must remain",
+        "At least one active owner must remain",
         409,
         "LAST_ACTIVE_OWNER",
       );
@@ -183,7 +183,7 @@ export async function updateUserStatus(
     const actor = users.find((user) => user.id === actorId);
 
     if (!actor || !actor.is_active || actor.role !== "OWNER") {
-      throw new AppError("Owner access required", 403, "FORBIDDEN");
+      throw new AppError("Permission denied", 403, "FORBIDDEN");
     }
 
     const user = users.find((user) => user.id === id);
@@ -203,7 +203,7 @@ export async function updateUserStatus(
       activeOwnerCount <= 1
     ) {
       throw new AppError(
-        "At least one active Owner must remain",
+        "At least one active owner must remain",
         409,
         "LAST_ACTIVE_OWNER",
       );

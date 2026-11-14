@@ -5,7 +5,11 @@ export const listProductsQuerySchema = z.object({
   categoryId: z
     .string()
     .regex(/^[1-9]\d*$/, "Invalid category ID")
-    .max(19)
+    .max(19, "Invalid category ID")
+    .refine(
+      (value) => value.length < 19 || value <= "9223372036854775807",
+      "Invalid category ID",
+    )
     .optional(),
   status: z.enum(["ALL", "ACTIVE", "INACTIVE"]).default("ALL"),
   page: z.coerce.number().int().min(1).max(1000000).default(1),

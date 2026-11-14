@@ -386,12 +386,7 @@ export async function createPurchase(input: CreatePurchaseInput, receivedBy: str
       },
       replayed: false,
     };
-
-    await connection.commit()
-
-    return{
-     
-    }
+    
   } catch(error){
     await connection.rollback()
 
