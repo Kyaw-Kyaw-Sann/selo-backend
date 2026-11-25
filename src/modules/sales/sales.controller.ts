@@ -1,8 +1,22 @@
 import type { RequestHandler } from "express";
-import { listSalesQuerySchema, saleIdParamsSchema } from "./sales.schema.js";
+import { listSalesQuerySchema, saleIdParamsSchema, type CreateSaleInput } from "./sales.schema.js";
 import { AppError } from "../../utils/app.error.js";
 import * as salesService from './sales.service.js'
-import { success } from "zod";
+
+export const createSale: RequestHandler = async (req, res) => {
+  if (!req.user) {
+    throw new AppError("Authentication required", 401, "UNAUTHENTICATED");
+  }
+
+  const input: CreateSaleInput = req.body;
+  const result = await salesService.createSale(input, req.user.id);
+
+  res.status(result.replayed ? 200 : 201).json({
+    success: true,
+    message: result.replayed ? "Sale already completed" : "Sale completed successfully",
+    data: result.sale,
+  });
+};
 
 export const listSales: RequestHandler = async (req, res) => {
     const result = listSalesQuerySchema.safeParse(req.query)
